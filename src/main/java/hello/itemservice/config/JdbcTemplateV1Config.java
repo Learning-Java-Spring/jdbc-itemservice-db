@@ -18,9 +18,9 @@ import javax.sql.DataSource;
 @RequiredArgsConstructor
 public class JdbcTemplateV1Config {
 
-    //private final DataSource dataSource;
+    private final DataSource dataSource;
 
-    @Bean
+/*    @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.h2.Driver");
@@ -28,7 +28,7 @@ public class JdbcTemplateV1Config {
         dataSource.setUsername("sa");
         dataSource.setPassword("");
         return dataSource;
-    }
+    }*/
 
 
     @Bean
@@ -37,8 +37,8 @@ public class JdbcTemplateV1Config {
     }
     @Bean
     public ItemRepository itemRepository() {
-        //return new JdbcTemplateItemRepositoryV1(dataSource());
-        return new JdbcTemplateItemRepositoryV2(dataSource());
+        //return new JdbcTemplateItemRepositoryV1(dataSource);
+        return new JdbcTemplateItemRepositoryV2(dataSource);
     }
 
 }

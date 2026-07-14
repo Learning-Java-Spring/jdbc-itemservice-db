@@ -1,8 +1,10 @@
 // ============================================================================
-// 1. 환경 감지 스위치
+// 1. OS 환경 감지 및 경로 설정
 // ============================================================================
+def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
+def sharedLibsPath = isWindows ? 'D:/DEV/workspace/shared-libs' : '/Users/soochang/DEV/workspace/shared-libs'
+
 def isOffline = file('offline.flag').exists()
-def sharedLibsPath = 'D:/DEV/workspace/share-libs' // 경로 변수 상단에 정의
 
 // ============================================================================
 // 2. 작업 반장 세팅 (플러그인)
@@ -71,7 +73,8 @@ dependencies {
 		annotationProcessor 'org.projectlombok:lombok'
 
 		testImplementation 'org.springframework.boot:spring-boot-starter-thymeleaf-test'
-		testImplementation 'org.springframework.boot:spring-boot-starter-web-test'
+		//testImplementation 'org.springframework.boot:spring-boot-starter-web-test'
+		testImplementation 'org.springframework.boot:spring-boot-starter-test'
 		testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
 		testImplementation 'org.springframework.boot:spring-boot-starter-jdbc-test'
 		testCompileOnly 'org.projectlombok:lombok'
@@ -83,4 +86,13 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+
+task copyAllDependencies(type: Copy) {
+	from configurations.runtimeClasspath
+	from configurations.compileClasspath
+	from configurations.annotationProcessor
+	from configurations.testRuntimeClasspath
+	into 'libs' // 프로젝트 루트의 'libs' 폴더로 복사
 }
