@@ -1,0 +1,84 @@
+// ============================================================================
+// 1. 환경 감지 스위치
+// ============================================================================
+def isOffline = file('offline.flag').exists()
+def sharedLibsPath = 'D:/DEV/workspace/share-libs' // 경로 변수 상단에 정의
+
+// ============================================================================
+// 2. 작업 반장 세팅 (플러그인)
+// ============================================================================
+buildscript {
+	// 🚨 여기서 변수를 다시 한 번 정의해야 buildscript가 인식합니다!
+	def isOffline = file('offline.flag').exists()
+
+	repositories {
+		if (!isOffline) { mavenCentral() }
+	}
+	dependencies {
+		if (isOffline) {
+			// 🚨 폐쇄망에서는 여기서도 D드라이브 공용 창고를 직접 바라보게 해야 합니다!
+			classpath fileTree(dir: 'D:/DEV/workspace/share-libs', include: ['*.jar'])
+		} else {
+			classpath 'org.springframework.boot:spring-boot-gradle-plugin:4.1.0'
+			classpath 'io.spring.gradle:dependency-management-plugin:1.1.7'
+		}
+	}
+}
+
+apply plugin: 'java'
+if (!isOffline) {
+	apply plugin: 'org.springframework.boot'
+	apply plugin: 'io.spring.dependency-management'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+// ============================================================================
+// 3. 내 프로젝트 자재(Dependencies) 세팅
+// ============================================================================
+repositories {
+	if (!isOffline) { mavenCentral() }
+}
+
+dependencies {
+	if (isOffline) {
+		// 🚨 따옴표를 완전히 제거해야 합니다. 'sharedLibsPath' (X) -> sharedLibsPath (O)
+		implementation fileTree(dir: sharedLibsPath, include: ['*.jar'])
+		compileOnly fileTree(dir: sharedLibsPath, include: ['*.jar'])
+		annotationProcessor fileTree(dir: sharedLibsPath, include: ['*.jar'])
+
+		testImplementation fileTree(dir: sharedLibsPath, include: ['*.jar'])
+		testCompileOnly fileTree(dir: sharedLibsPath, include: ['*.jar'])
+		testAnnotationProcessor fileTree(dir: sharedLibsPath, include: ['*.jar'])
+	} else {
+		implementation 'org.springframework.boot:spring-boot-h2console'
+		implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+
+		implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+		implementation 'org.springframework.boot:spring-boot-starter-web'
+		implementation 'org.springframework.boot:spring-boot-starter-validation'
+		compileOnly 'org.projectlombok:lombok'
+		runtimeOnly 'com.h2database:h2'
+		annotationProcessor 'org.projectlombok:lombok'
+
+		testImplementation 'org.springframework.boot:spring-boot-starter-thymeleaf-test'
+		testImplementation 'org.springframework.boot:spring-boot-starter-web-test'
+		testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
+		testImplementation 'org.springframework.boot:spring-boot-starter-jdbc-test'
+		testCompileOnly 'org.projectlombok:lombok'
+		testCompileOnly 'org.apiguardian:apiguardian-api:1.1.2'
+		testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+		testAnnotationProcessor 'org.projectlombok:lombok'
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
