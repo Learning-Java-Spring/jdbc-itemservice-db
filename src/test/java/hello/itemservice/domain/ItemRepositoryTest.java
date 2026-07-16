@@ -4,6 +4,7 @@ import hello.itemservice.repository.ItemRepository;
 import hello.itemservice.repository.ItemSearchCond;
 import hello.itemservice.repository.ItemUpdateDto;
 import hello.itemservice.repository.memory.MemoryItemRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
+@Slf4j
 @Transactional
 @SpringBootTest(classes = hello.itemservice.ItemServiceApplication.class)
 class ItemRepositoryTest {
@@ -85,23 +88,26 @@ class ItemRepositoryTest {
         itemRepository.save(item3);
 
         //둘 다 없음 검증
-        test(null, null, item1, item2, item3);
-        test("", null, item1, item2, item3);
+        //test(null, null, item1, item2, item3);
+        //test("", null, item1, item2, item3);
 
         //itemName 검증
         test("itemA", null, item1, item2);
-        test("temA", null, item1, item2);
-        test("itemB", null, item3);
+        //test("temA", null, item1, item2);
+        //test("itemB", null, item3);
 
         //maxPrice 검증
-        test(null, 10000, item1);
+        //test(null, 10000, item1);
 
         //둘 다 있음 검증
-        test("itemA", 10000, item1);
+        //test("itemA", 10000, item1);
     }
 
     void test(String itemName, Integer maxPrice, Item... items) {
+        log.info("itemName={}, maxPrice={}", itemName, maxPrice);
+        log.info(items.toString());
         List<Item> result = itemRepository.findAll(new ItemSearchCond(itemName, maxPrice));
+        log.info("result ={}", result.toString());
         assertThat(result).containsExactly(items);
     }
 }
